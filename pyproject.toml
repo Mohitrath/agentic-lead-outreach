@@ -3,9 +3,7 @@ name = "agentic-lead-outreach"
 version = "0.1.0"
 description = "Evidence-grounded agentic B2B lead qualification and outreach demo"
 requires-python = ">=3.12"
-dependencies = [
-    "flask>=3.1,<4",
-]
+dependencies = []
 
 [tool.vercel]
-entrypoint = "web:app"
+entrypoint = "app:app"
