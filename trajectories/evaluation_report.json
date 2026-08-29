@@ -1,0 +1,15 @@
+{
+  "note": "Same 20 leads, same eval labels, used for both pipelines.",
+  "baseline": {
+    "classification": {"accuracy": 0.95, "precision": 0.917, "recall": 1.0, "tp": 11, "fp": 1, "tn": 8, "fn": 0},
+    "personalization": {"emails_checked": 12, "specific_pct": 0.0},
+    "elapsed_seconds": 0.0,
+    "flagged_rejections": 0
+  },
+  "agent": {
+    "classification": {"accuracy": 1.0, "precision": 1.0, "recall": 1.0, "tp": 11, "fp": 0, "tn": 9, "fn": 0},
+    "personalization": {"emails_checked": 11, "specific_pct": 100.0},
+    "elapsed_seconds": 0.002,
+    "flagged_rejections": 9
+  }
+}
