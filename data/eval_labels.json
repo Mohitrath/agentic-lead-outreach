@@ -1,0 +1,25 @@
+{
+  "_comment": "Hand-labeled ground truth: is this lead a genuine singing-bowl buyer prospect worth outreach?",
+  "labels": {
+    "L01": {"is_good_lead": true, "note": "explicitly sourcing sound-therapy accessories"},
+    "L02": {"is_good_lead": true, "note": "already distributes singing bowls, open supplier page"},
+    "L03": {"is_good_lead": false, "note": "digital agency, no product fit"},
+    "L04": {"is_good_lead": true, "note": "explicitly expanding brass singing bowl range"},
+    "L05": {"is_good_lead": false, "note": "auto parts, no fit"},
+    "L06": {"is_good_lead": true, "note": "sells bowls directly, actively wants small manufacturers"},
+    "L07": {"is_good_lead": false, "note": "general goods trader, no wellness/bowl signal"},
+    "L08": {"is_good_lead": true, "note": "evaluating new bowl manufacturing partners"},
+    "L09": {"is_good_lead": false, "note": "office supplies, no fit"},
+    "L10": {"is_good_lead": true, "note": "wellness corner with bowls, actively posting new arrivals"},
+    "L11": {"is_good_lead": false, "note": "logistics company, not a buyer"},
+    "L12": {"is_good_lead": true, "note": "already carries bowls, explicitly looking to expand range"},
+    "L13": {"is_good_lead": false, "note": "toy distributor, no fit"},
+    "L14": {"is_good_lead": true, "note": "actively sourcing singing bowl suppliers right now"},
+    "L15": {"is_good_lead": false, "note": "apparel wholesaler, no fit"},
+    "L16": {"is_good_lead": true, "note": "open to new artisan partnerships for brass/bronze pieces"},
+    "L17": {"is_good_lead": false, "note": "hardware supplier, no fit"},
+    "L18": {"is_good_lead": true, "note": "explicitly onboarding new singing bowl suppliers"},
+    "L19": {"is_good_lead": false, "note": "pet products, no fit"},
+    "L20": {"is_good_lead": true, "note": "growing category, invites manufacturer inquiries"}
+  }
+}
