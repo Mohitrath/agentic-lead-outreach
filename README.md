@@ -1,163 +1,295 @@
-# Agentic B2B Lead Qualification & Outreach for a Singing Bowl Exporter
+<div align="center">
 
-**micro1 Agentic Workflows Hackathon submission**
+# 🤖 Agentic B2B Lead Outreach
 
-## Who has this problem?
+### Evidence-grounded lead qualification, personalization & safe outreach
 
-A small artisan manufacturer/exporter of Tibetan singing bowls (based in India)
-selling wholesale to international retailers, wellness stores, and trading
-companies. This is a real business I've been building export tooling for
-already — this project extends that with an agentic lead-qualification and
-outreach layer.
+<p>
+  <strong>micro1 Agentic Workflows Hackathon</strong> · Python · Agentic AI · Claude-ready · Human-in-the-loop
+</p>
 
-## What bottleneck makes it worth solving?
+<p>
+  <a href="#-features">Features</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-interface-preview">Interface</a> ·
+  <a href="#-evaluation">Evaluation</a> ·
+  <a href="#-quick-start">Quick Start</a>
+</p>
 
-International buyer discovery happens through directories, trade-show lists,
-and LinkedIn/web mentions — noisy, unstructured text snippets, most of which
-are **not** relevant (auto parts distributors, toy wholesalers, logistics
-companies all show up alongside genuine wellness/sourcing prospects). Today
-this is done manually by one person:
-
-- Reading each lead and deciding "is this worth emailing?" — slow, and
-  inconsistent under time pressure (easy to over-trigger on the word
-  "wellness" or "import" and waste outreach on a bad fit).
-- Sending the same generic template to everyone who passes, because writing
-  a custom email per lead doesn't scale.
-- No memory across sessions — a lead can get emailed twice by accident, which
-  reads as unprofessional to an international B2B buyer.
-
-None of this requires new information the business doesn't have — it requires
-consistently *applying judgment* across a growing pile of leads. That's a good
-fit for an agent: not fully autonomous "send the email" (a human should
-approve real outreach — this is a relationship business), but reliable triage,
-evidence-grounded reasoning, and personalization.
-
-## Does the agent solve it well?
-
-Yes — see [Evaluation](#evaluation-results) below. Against a fair baseline,
-the agent pipeline reaches perfect classification accuracy on the 20-lead eval
-set (vs. 95% for the baseline), and every email it drafts references a specific,
-real detail about that lead instead of generic boilerplate.
-
-## Can another person reproduce the result?
-
-Yes — see [Reproduction Guide](#reproduction-guide). No API key required to run
-the full pipeline end to end (it falls back to a deterministic mock "LLM" so
-grading doesn't depend on anyone's API budget); set `ANTHROPIC_API_KEY` to
-switch both pipelines to real Claude calls with the exact same code path.
+</div>
 
 ---
 
-## Architecture
+## 🎯 What is this?
 
+**Agentic B2B Lead Outreach** is an agentic workflow for an artisan exporter selling **Tibetan singing bowls** to international retailers, wellness stores, and sourcing companies.
+
+Instead of blindly emailing every scraped lead, the workflow:
+
+> **Classifies → verifies evidence → checks memory → personalizes → pauses for human approval**
+
+The result is a safer outreach pipeline that is explainable, repeatable, and resistant to duplicate or poorly supported outreach.
+
+## ✨ Why it matters
+
+Traditional lead outreach has three recurring problems:
+
+- 🔎 **Noisy discovery** — directories and web snippets contain many irrelevant companies.
+- ✉️ **Generic outreach** — good leads often receive the same template.
+- 🧠 **No memory** — the same buyer can accidentally be contacted twice.
+
+This project treats those problems as an **agent workflow problem**, not simply a text-generation problem.
+
+---
+
+## 🚀 Features
+
+| Feature | What it does |
+|---|---|
+| 🧩 Lead classification | Scores each lead using structured reasoning |
+| 🔍 Evidence verification | Requires supporting evidence for strong-fit decisions |
+| 🛡️ Guardrails | Rejects invalid emails, duplicates, weak fits, and unsupported high scores |
+| 🧠 Persistent memory | Tracks contacted leads across runs |
+| ✍️ Personalization | Drafts emails using lead-specific evidence |
+| 👤 Human approval gate | Keeps real outreach under human control |
+| 🧪 Baseline comparison | Measures the agent against a simpler baseline |
+| 📴 Deterministic mock LLM | Runs end-to-end without an API key |
+| ☁️ Claude-ready | Set `ANTHROPIC_API_KEY` to use real Claude calls |
+
+---
+
+## 🖥️ Interface Preview
+
+The project is designed around a clean **lead-review / agent-workflow interface**. The visuals below illustrate the intended review experience and workflow state.
+
+### Lead qualification dashboard
+
+<img src="./assets/interface-overview.svg" alt="Agentic lead outreach dashboard showing qualification scores, evidence verification, and workflow steps" width="100%" />
+
+### Personalized outreach review
+
+<img src="./assets/agent-email-review.svg" alt="Human review interface showing a personalized outreach email draft and lead evidence" width="100%" />
+
+> **Safety by design:** the interface ends at a human approval step. The application does not automatically send real emails.
+
+GitHub supports repository-hosted images and relative image paths in README files, so these visuals are version-controlled alongside the documentation. citeturn0search0turn0search1
+
+---
+
+## 🏗️ Architecture
+
+```text
+data/
+├── leads.csv                  # 20 realistic synthetic B2B leads
+└── eval_labels.json           # Evaluation ground truth
+
+src/
+├── llm.py                     # Mock / Claude LLM abstraction
+├── baseline.py                # Simple baseline pipeline
+├── agent.py                   # Agentic qualification + outreach
+└── evaluate.py                # Evaluation runner
+
+memory/
+└── contacted.json             # Cross-run contact memory
+
+outbox/
+├── baseline/                  # Baseline draft emails
+└── agent/                     # Agent-generated draft emails
+
+trajectories/
+├── agent/                     # Per-lead reasoning trajectories
+└── *.json                     # Run summaries and evaluation reports
+
+assets/
+├── interface-overview.svg     # Dashboard visual
+└── agent-email-review.svg     # Outreach review visual
 ```
-data/leads.csv          20 synthetic, realistic scraped B2B lead snippets
-data/eval_labels.json   hand-labeled ground truth for evaluation only
 
-src/llm.py              LLM abstraction: real Claude API call if
-                         ANTHROPIC_API_KEY is set, else deterministic mock
-src/baseline.py         BASELINE: one basic classification prompt + generic email
-src/agent.py            AGENT: classify -> verify -> personalize -> memory -> approval gate
-src/evaluate.py         Runs both pipelines and scores them
+### Agent workflow
 
-memory/contacted.json   persists across runs — no double-contact
-outbox/baseline/        dry-run baseline emails
-outbox/agent/           dry-run agent emails
-trajectories/agent/     one JSON trajectory per lead
-trajectories/*.json     run summaries + evaluation report
+```mermaid
+flowchart LR
+    A[Lead] --> B[Classify]
+    B --> C[Verify Evidence]
+    C --> D{Guardrails Pass?}
+    D -- No --> E[Reject + Explain]
+    D -- Yes --> F[Check Memory]
+    F --> G[Personalize Email]
+    G --> H[Human Approval]
+    H --> I[Dry-run Outbox]
+    I --> J[Update Memory]
 ```
 
-### Agent capabilities used
+### Why a single agent?
 
-| Capability | Where | Why |
-|---|---|---|
-| Structured reasoning + evidence | `classify_lead` | Preserves the *why* for later verification and human review |
-| Verification / guardrail | `verify()` | Fails closed on contradictions, missing contact info, or duplicates |
-| Memory | `memory/contacted.json` | Prevents accidental double-contact across runs |
-| Human-approval gate | end of `agent.py` | Outreach stays in dry-run/outbox and is never auto-sent |
-
-I did **not** add multi-agent orchestration: a single agent with a clear tool
-sequence was enough for this task, without adding complexity for its own sake.
+A multi-agent architecture was deliberately avoided. The task needs a clear sequence of decisions, evidence checks, memory, and an approval gate; adding several autonomous agents would increase complexity without improving the core workflow.
 
 ---
 
-## Evaluation results
+## 🧠 Guardrails
 
-Same 20 leads, same evaluation labels, same threshold (fit_score ≥ 0.5), run
-with the default mock LLM:
+The strongest design choice is **not trusting a high model score by itself**.
 
-| Metric | Baseline | Agent | Change |
-|---|---|---|---|
-| Classification accuracy | 0.95 | **1.0** | +0.05 |
-| Precision (good-lead calls) | 0.917 | **1.0** | +0.083 |
-| Recall (good-lead calls) | 1.0 | 1.0 | +0.0 |
-| Emails with lead-specific evidence | 0% | **100%** | +100 pts |
-| False positives (bad leads emailed) | 1 | **0** | -1 |
+A lead can be rejected when:
 
-Full machine-readable report: `trajectories/evaluation_report.json`.
-Full changelog: [`CHANGELOG.md`](./CHANGELOG.md).
+- the contact email is missing or invalid;
+- the lead has already been contacted;
+- the fit score is below the configured threshold;
+- the model gives a high score but provides no supporting evidence.
 
-**Human time per task (estimated, not machine-measured):** manual triage and
-writing for 20 leads takes roughly 25–35 minutes; the pipeline runs in under a
-second for the mock classification/drafting, leaving only a final human skim
-and approval step (~2–3 minutes for 20 leads).
+That last rule catches the dangerous case of a confident-sounding classification with nothing concrete behind it.
 
 ---
 
-## Reproduction guide
+## 📊 Evaluation
 
-Requires Python 3.9+. No paid API key is needed for the default run.
+The same 20 leads are evaluated against the same hand-labeled ground truth.
+
+| Metric | Baseline | Agent | Improvement |
+|---|---:|---:|---:|
+| Classification accuracy | 0.95 | **1.00** | **+0.05** |
+| Precision | 0.917 | **1.00** | **+0.083** |
+| Recall | 1.00 | **1.00** | — |
+| Emails with lead-specific evidence | 0% | **100%** | **+100 pts** |
+| False positives | 1 | **0** | **-1** |
+
+Full machine-readable results are stored in `trajectories/evaluation_report.json`.
+
+### ⏱️ Estimated human effort
+
+For 20 leads, manual triage + writing is estimated at **25–35 minutes**. With the agent pipeline, the automated mock run completes in under a second, leaving approximately **2–3 minutes for final human review and approval**.
+
+> The time figures are estimates, not benchmark measurements.
+
+---
+
+## ⚡ Quick Start
+
+### Requirements
+
+- Python **3.9+**
+- No API key required for the default deterministic run
+
+### 1. Clone
 
 ```bash
+git clone https://github.com/Mohitrath/agentic-lead-outreach.git
 cd agentic-lead-outreach
-pip install -r requirements.txt      # only needed for real Claude calls
+```
 
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the evaluation
+
+```bash
 cd src
 python3 evaluate.py
 ```
 
-Or run either pipeline alone:
+### 4. Run individual pipelines
 
 ```bash
 python3 baseline.py
 python3 agent.py
 ```
 
-Expected output: console summary + `trajectories/evaluation_report.json`,
-`outbox/baseline/*.txt`, `outbox/agent/*.txt`, and
-`trajectories/agent/*.json`.
+Expected outputs include:
 
-### Real Claude mode
+```text
+trajectories/evaluation_report.json
+trajectories/agent/*.json
+trajectories/agent_run.json
+outbox/baseline/*.txt
+outbox/agent/*.txt
+```
 
-Set `ANTHROPIC_API_KEY` in your environment. Do not commit your real key.
+---
+
+## ☁️ Use Real Claude Calls
+
+The default configuration uses a deterministic mock model so anyone can reproduce the evaluation without spending API credits.
+
+To use Claude instead:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export ANTHROPIC_API_KEY=your_key_here
 python3 evaluate.py
 ```
 
-Both pipelines automatically switch to real Claude calls without other code
-changes.
+Or create your local environment file from the template:
 
-### Reset agent memory
+```bash
+cp .env.example .env
+```
+
+**Never commit your real API key.**
+
+---
+
+## 🔄 Reset Memory
+
+To start a fresh run:
 
 ```bash
 echo '{"contacted_ids": []}' > memory/contacted.json
 ```
 
-### Real email sending
+---
 
-This project intentionally stops at dry-run/outbox. Real email sending is not
-automated: consequential outreach should be reviewed and explicitly approved
-by a human first.
+## 📬 Outreach Safety
+
+This repository intentionally stops at a **dry-run / outbox**.
+
+It does **not** automatically send real emails. A human must review and explicitly approve consequential outreach before anything is sent.
 
 ---
 
-## Hot take / insight
+## 📁 Reproducibility
 
-The most valuable guardrail wasn't a smarter classification prompt — it was
-rejecting the model's own high score when it couldn't point to evidence
-(`high_score_no_evidence_contradiction` in `verify()`). A confident-sounding
-"yes" with no supporting quote is easy to miss in manual review. Forcing the
-model to cite evidence, then mechanically checking that the evidence actually
-exists, catches a whole class of plausible-but-wrong classifications.
+The project is structured so another developer can reproduce the evaluation locally:
+
+1. Load the same 20 leads.
+2. Run the baseline.
+3. Run the agent.
+4. Compare both against the evaluation labels.
+5. Inspect the generated trajectories and email drafts.
+
+The mock model makes this process deterministic and avoids dependency on an external API during grading.
+
+---
+
+## 💡 Key Insight
+
+> **The most valuable guardrail was not a smarter prompt — it was rejecting a high score when the model could not provide evidence.**
+
+For B2B outreach, a confident but unsupported classification can be more dangerous than a low score. Requiring evidence and mechanically validating it turns the agent from a simple text generator into a more reviewable decision-support workflow.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Python** — core implementation
+- **Claude / Anthropic API** — optional real LLM backend
+- **Structured JSON** — classifications, memory, trajectories, evaluation
+- **CSV** — lead dataset
+- **GitHub** — version control and reproducible project delivery
+
+---
+
+## 📌 Project Status
+
+**Hackathon-ready · Reproducible · Human-in-the-loop · Dry-run only**
+
+---
+
+<div align="center">
+
+### Built for reliable, evidence-grounded B2B outreach.
+
+⭐ If this project helped you, consider starring the repository.
+
+</div>
