@@ -1,2 +1,9 @@
+[project]
+name = "agentic-lead-outreach"
+version = "0.1.0"
+description = "Evidence-grounded agentic B2B lead qualification and outreach demo"
+requires-python = ">=3.12"
+dependencies = []
+
 [tool.vercel]
 entrypoint = "app:app"
